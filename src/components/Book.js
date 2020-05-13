@@ -1,7 +1,30 @@
+import PropTypes from 'prop-types'
 import React from 'react'
+import { update } from '../BooksAPI'
 
 class Book extends React.Component {
+	state = {
+		value: 'read',
+	}
+
+	componentDidMount() {
+		this.setState(() => ({
+			value: this.props.shelf,
+		}))
+	}
+
+	handleSelect = e => {
+		const changeTo = e.target.value
+		this.setState(() => ({
+			value: changeTo,
+		}))
+		update({ id: this.props.id }, e.target.value).then(res =>
+			this.props.updateView()
+		)
+	}
+
 	render() {
+		const { thumbnail, title, authors } = this.props
 		return (
 			<div>
 				<li>
@@ -12,12 +35,14 @@ class Book extends React.Component {
 								style={{
 									width: 128,
 									height: 193,
-									backgroundImage:
-										'url("http://books.google.com/books/content?id=PGR2AwAAQBAJ&printsec=frontcover&img=1&zoom=1&imgtk=AFLRE73-GnPVEyb7MOCxDzOYF1PTQRuf6nCss9LMNOSWBpxBrz8Pm2_mFtWMMg_Y1dx92HT7cUoQBeSWjs3oEztBVhUeDFQX6-tWlWz1-feexS0mlJPjotcwFqAg6hBYDXuK_bkyHD-y&source=gbs_api")',
+									backgroundImage: `url(${thumbnail})`,
 								}}
 							/>
 							<div className='book-shelf-changer'>
-								<select>
+								<select
+									value={this.state.value}
+									onChange={e => this.handleSelect(e)}
+								>
 									<option value='move' disabled>
 										Move to...
 									</option>
@@ -32,13 +57,25 @@ class Book extends React.Component {
 								</select>
 							</div>
 						</div>
-						<div className='book-title'>To Kill a Mockingbird</div>
-						<div className='book-authors'>Harper Lee</div>
+						<div className='book-title'>{title}</div>
+						{authors
+							? authors.map(author => (
+									<div className='book-authors' key={author}>
+										{author}
+									</div>
+							  ))
+							: ''}
 					</div>
 				</li>
 			</div>
 		)
 	}
+}
+
+Book.propTypes = {
+	authors: PropTypes.array,
+	thumbnail: PropTypes.any.isRequired,
+	title: PropTypes.string.isRequired,
 }
 
 export default Book

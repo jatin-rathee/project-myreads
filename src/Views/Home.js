@@ -6,41 +6,25 @@ import Shelf from '../components/Shelf'
 
 class Home extends Component {
 	state = {
-		Books: [],
-		currentlyReading: [],
-		wantToRead: [],
-		read: [],
+		books: [],
 	}
 
 	async componentDidMount() {
-		try {
-			const books = await getAll()
-			this.setState(() => ({
-				Books: books,
-			}))
+		const books = await getAll()
+		this.setState(() => ({
+			books: books,
+		}))
+	}
 
-			books.forEach(book => {
-				if (book.shelf === 'currentlyReading') {
-					this.setState(prevState => ({
-						currentlyReading: [...prevState.currentlyReading, book],
-					}))
-				} else if (book.shelf === 'wantToRead') {
-					this.setState(prevState => ({
-						wantToRead: [...prevState.wantToRead, book],
-					}))
-				} else if (book.shelf === 'read') {
-					this.setState(prevState => ({
-						read: [...prevState.read, book],
-					}))
-				}
-			})
-			console.log(this.state)
-		} catch (error) {
-			console.log(error)
-		}
+	updateView = async () => {
+		const books = await getAll()
+		this.setState(() => ({
+			books: books,
+		}))
 	}
 
 	render() {
+		const { books } = this.state
 		return (
 			<div>
 				<div className='list-books'>
@@ -51,10 +35,28 @@ class Home extends Component {
 						<div>
 							<Shelf
 								title='Currently Reading'
-								books={this.state.currentlyReading}
+								books={books.filter(
+									book => book.shelf === 'currentlyReading'
+								)}
+								shelf='currentlyReading'
+								updateView={this.updateView}
 							/>
-							<Shelf title='Want To Read' />
-							<Shelf title='Read' />
+							<Shelf
+								title='Want To Read'
+								books={books.filter(
+									book => book.shelf === 'wantToRead'
+								)}
+								shelf='wantToRead'
+								updateView={this.updateView}
+							/>
+							<Shelf
+								title='Read'
+								books={books.filter(
+									book => book.shelf === 'read'
+								)}
+								shelf='read'
+								updateView={this.updateView}
+							/>
 						</div>
 					</div>
 					<div className='open-search'>
